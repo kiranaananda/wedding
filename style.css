@@ -26,10 +26,12 @@ body {
 }
 
 h1, h2, h3 {
-    font-family: 'Malibu';
-    src: url('malibu-slant.ttf') format('truetype');
-    font-weight: normal;
-    margin: 0;
+ @font-face {
+   font-family: 'Malibu';
+   src: url('malibu-slant.ttf') format('truetype');
+   font-weight: normal;
+   font-style: normal;
+   margin: 0;
 }
 
 /* =========================================
