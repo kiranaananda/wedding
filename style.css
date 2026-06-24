@@ -195,6 +195,36 @@ nav a:hover { color: var(--coral-pink); }
     max-width: 550px;
     margin: 0 auto 3rem auto;
 }
+.spouse-container {
+    max-width: 800px;
+    margin: 2rem auto 4rem auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    text-align: center;
+}
+
+.spouse {
+    padding: 0 1rem;
+}
+
+.fullname {
+    margin-bottom: 0.5rem !important;
+}
+
+.child {
+    font-style: italic;
+    color: var(--sogan-brown);
+    margin: 0;
+}
+
+.and {
+    font-size: 2rem;
+    color: var(--champagne-gold);
+    font-style: italic;
+    margin: 0.5rem 0;
+}
 
 .event-card {
     background-color: rgba(255, 255, 255, 0.75);
@@ -289,4 +319,6 @@ nav a:hover { color: var(--coral-pink); }
     .hero-img {content: url("akka_mobile.jpeg"); }
     .nav ul { gap: 1.5rem; }
     .hero-text-box { backdrop-filter: none; }
+    .fullname { font-size: 2.2rem; }
+    .spouse-container { margin: 1.5rem auto 3rem auto; }
 }
