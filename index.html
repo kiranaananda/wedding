@@ -32,7 +32,6 @@
         <!-- Navigation Bar -->
         <nav>
             <ul>
-                <li><a href="#home">Home</a></li>
                 <li><a href="#details">Details</a></li>
                 <li><a href="#rsvp">RSVP</a></li>
             </ul>
@@ -50,7 +49,7 @@
             </div>
         </header>
 
-        <!-- Event Details Section (Clean Centered Layout) -->
+        <!-- Event Details Section -->
         <section id="details" class="details-section">
             <h2>The Celebration</h2>
             <div class="divider"></div>
@@ -65,6 +64,36 @@
             </div>
         </section>
         
+        <!-- RSVP Section -->
+        <section id="rsvp">
+            <form action="https://api.web3forms.com/submit" method="POST" class="rsvp-form">
+            <input type="hidden" name="access_key" value="69a7b2a1-1a22-4b7e-b717-097a70b63914">
+                
+        <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" required placeholder="Your first and last name">
+        </div>
+
+        <div class="form-group">
+            <label for="attendance">Will you be attending?</label>
+            <select id="attendance" name="attendance" required>
+                <option value="" disabled selected>Select an option</option>
+                <option value="yes">Joyfully Accept</option>
+                <option value="no">Regretfully Decline</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="guests">Number of Guests (Including Yourself)</label>
+            <select id="guests" name="total_guests">
+                <option value="1">1</option>
+                <option value="2">2</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn submit-btn">Submit RSVP</button>
+    </form>
+</div>
     </div>
 
 </body>
