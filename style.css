@@ -228,6 +228,61 @@ nav a:hover { color: var(--coral-pink); }
     color: var(--sogan-brown);
 }
 
+/* =========================================
+   6. RSVP FORM STYLING
+   ========================================= */
+.rsvp-form {
+    margin-top: 1.5rem;
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--deep-olive);
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid rgba(214, 197, 160, 0.6);
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--sogan-brown);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.95rem;
+    border-radius: 4px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--deep-olive);
+}
+
+.submit-btn {
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* =========================================
+   7. MOBILE SCALING
+   ========================================= */
+
 /* Responsive Scaling for Mobile */
 @media (max-width: 768px) {
     .hero { height: 55vh; }
