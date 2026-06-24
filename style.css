@@ -325,10 +325,9 @@ nav a:hover { color: var(--coral-pink); }
 
 /* Responsive Scaling for Mobile */
 @media (max-width: 768px) {
-    .hero { height: 55vh; }
-    .hero-img {content: url("akka_mobile.jpeg"); }
+    .hero { height: 25vh; }
     .nav ul { gap: 1.5rem; }
-    .hero-text-box { backdrop-filter: none; }
+    .hero-text-box { display: none; }
     .fullname { font-size: 2.2rem; }
     .spouse-container { margin: 1.5rem auto 3rem auto; }
 }
