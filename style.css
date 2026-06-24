@@ -224,6 +224,7 @@ nav a:hover { color: var(--coral-pink); }
     color: var(--champagne-gold);
     font-style: italic;
     margin: 0.5rem 0;
+    font-family: 'Malibu', cursive;
 }
 
 .event-card {
