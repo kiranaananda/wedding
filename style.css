@@ -32,10 +32,17 @@ body {
     line-height: 1.6;
 }
 
-h1, h2, h3 {
+h1, h2 {
   font-family: 'Malibu', cursive;
   margin: 0;
   color: var(--deep-olive);
+}
+
+h3 {
+    font-family: 'Lato', sans-serif;
+    margin: 0;
+    color: var(--deep-olive);
+    text-transform: uppercase;
 }
 
 h1 {
