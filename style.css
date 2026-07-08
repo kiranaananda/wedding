@@ -223,9 +223,9 @@ nav a:hover { color: var(--coral-pink); }
 }
 
 .child {
-    font-style: italic;
     color: var(--sogan-brown);
     margin: 0;
+    text-transform: uppercase;
 }
 
 .and {
