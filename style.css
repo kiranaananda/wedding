@@ -213,10 +213,9 @@ body {
 }
 
 /* Card Front Elements */
-.honor-phrase { font-family: 'Playfair Display', serif; font-style: italic; color: var(--deep-olive); font-size: 0.9rem; margin-bottom: 25px;}
 .couple-names { font-family: 'Playfair Display', serif; font-weight: 400; font-size: 1.2rem; color: var(--deep-olive); margin: 25px 0; line-height: 1.3; text-transform:uppercase;}
 .ampersand { font-size: 1.4rem; color: var(--champagne-gold); font-style: italic; }
-.theme-tag { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted-sage); margin-bottom: 25px; font-weight: 500; }
+.theme-tag { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted-sage); font-weight: 500; }
 .date-line { font-size: 0.85rem; letter-spacing: 1px; margin-bottom: 6px; font-weight: 400; }
 .venue-line { font-size: 0.8rem; opacity: 0.8; margin-bottom: 35px; }
 
