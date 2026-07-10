@@ -41,7 +41,7 @@
                 <!-- CARD FRONT: The Invitation -->
                 <div class="card-front">
                     <p class="theme-tag" id="guestLine" style="display: none;">Dear <span id="guest-name">Guest</span>,<br><br></p>
-                    <p class="theme-tag" Mr. Suwarno &<br> Mrs. Titik Suwarti<br><br>
+                    <p class="theme-tag">Mr. Suwarno &<br> Mrs. Titik Suwarti<br><br>
                     together with<br><br>
                     Mr. Andrzej Zbigniew Krzyzak &<br> Mrs. Hanna Marzena Krzyzak<br><br>
                     request the pleasure of your company at the wedding of their children</br></p>
@@ -69,28 +69,38 @@
                             <form action="https://api.web3forms.com/submit" method="POST" class="rsvp-form" id="weddingForm">
                                 <input type="hidden" name="access_key" value="69a7b2a1-1a22-4b7e-b717-097a70b63914">
                                 
-                                <div class="input-group">
-                                    <input type="text" name="name" required placeholder="Your Full Name">
-                                </div>
-                                
-                                <div class="input-group">
-                                    <select name="attendance" required>
-                                        <option value="" disabled selected>Will you attend?</option>
-                                        <option value="yes">Joyfully Accept</option>
-                                        <option value="no">Regretfully Decline</option>
-                                    </select>
-                                </div>
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" required placeholder="Name(s) as they appear on your invitation">
+                    </div>
 
-                                <div class="input-group">
-                                    <select name="guests" required>
-                                        <option value="1">1 Attendee</option>
-                                        <option value="2">2 Attendees</option>
-                                    </select>
-                                </div>
+                    <div class="form-group">
+                        <label for="invitation-source">Whose guest are you?</label>
+                        <select id="invitation-source" name="invitation_source" required>
+                        <option value="" disabled selected>Select an option</option>
+                        <option value="parents">Parents of the Bride/Groom</option>
+                        <option value="bridegroom">The Bride/Groom</option>
+                        </select>
+                    </div>
+        
+                <div class="form-group">
+                    <label for="attendance">Will you be attending?</label>
+                    <select id="attendance" name="attendance" required>
+                    <option value="" disabled selected>Select an option</option>
+                    <option value="yes">Joyfully accept</option>
+                    <option value="no">Regretfully decline</option>
+                </select>
+                </div>
 
-                                <div class="input-group">
-                                    <textarea name="wishes" rows="2" placeholder="Warm wishes or dietary restrictions..."></textarea>
-                                </div>
+                <div class="form-group">
+                    <label for="guests">Number of guests (including yourself)</label>
+                    <select id="guests" name="total_guests">
+                        <option value="0">Not applicable</option>
+                        <option value="1">1 attendee</option>
+                        <option value="2">2 attendees</option>
+                    </select>
+                </div>
+
 
                                 <button type="submit" class="submit-btn">Send Response</button>
                             </form>
@@ -108,8 +118,8 @@
                                     <div class="faq-answer">Due to limited venue capacity, invitations are limited strictly to the number of attendees indicated in your RSVP dropdown.</div>
                                 </div>
                                 <div class="faq-item">
-                                    <div class="faq-question">Where should I park? <span>+</span></div>
-                                    <div class="faq-answer">Complimentary valet parking is available directly at the main entrance of The Grand Botanical Gardens.</div>
+                                    <div class="faq-question">Can I bring gift? <span>+</span></div>
+                                    <div class="faq-answer">Your presence at our wedding is the greatest gift of all. As we establish our life together, we are focusing on saving for the down payment on our first home. In lieu of traditional gifts, a donation toward this next chapter would mean the world to us.</div>
                                 </div>
                             </div>
                         </div>
