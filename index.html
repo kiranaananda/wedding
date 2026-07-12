@@ -4,8 +4,473 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kirana & Andrzej | Wedding Invitation</title>
-    <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* =========================================
+           1. COLOR TEMPLATE VARIABLES
+           ========================================= */
+        :root {
+            --soft-cream: #F9F6F0;
+            --crisp-white: #FFFFFF;
+            --muted-sage: #A3B19B;
+            --deep-olive: #4A5846;
+            --champagne-gold: #D6C5A0;
+            --sogan-brown: #4A2E18;
+            --coral-pink: #FB9C88;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--soft-cream);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: hidden; /* Locked initially until wax seal is clicked */
+            color: var(--sogan-brown);
+        }
+
+        /* FIX: Dynamically unlocked via JS when envelope is opened */
+        body.allow-scroll {
+            overflow-y: auto;
+        }
+
+        h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 4rem); font-weight: 400; margin: 0; }
+        h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem, 4vw, 3rem); font-weight: 400; margin: 0; }
+        p, label, select, input, textarea { font-weight: 300; letter-spacing: 0.5px; }
+
+        .scene-container {
+            position: relative;
+            width: 100%;
+            max-width: 380px;
+            height: 590px;
+            perspective: 1500px;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* =========================================
+           2. AMBIENT BUBBLES & GLASS SYSTEM
+           ========================================= */
+        .background-bubbles {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2;
+            margin: 0; padding: 0;
+            overflow: hidden;
+        }
+
+        .background-bubbles li {
+            position: absolute;
+            display: block;
+            list-style: none;
+            border-radius: 50%;
+            animation: floatUp 22s linear infinite;
+            bottom: -150px;
+            opacity: 0.8;
+        }
+
+        .background-bubbles li:nth-child(1) { left: 15%; width: 90px; height: 90px; animation-delay: 0s; background: var(--champagne-gold); }
+        .background-bubbles li:nth-child(2) { left: 45%; width: 40px; height: 40px; animation-delay: 3s; animation-duration: 14s; background: var(--coral-pink); }
+        .background-bubbles li:nth-child(3) { left: 75%; width: 60px; height: 60px; animation-delay: 1s; background: var(--deep-olive); }
+        .background-bubbles li:nth-child(4) { left: 30%; width: 110px; height: 110px; animation-delay: 5s; background: var(--crisp-white); }
+        .background-bubbles li:nth-child(5) { left: 60%; width: 30px; height: 30px; animation-delay: 8s; background: var(--coral-pink); }
+        .background-bubbles li:nth-child(6) { left: 85%; width: 130px; height: 130px; animation-delay: 2s; background: var(--muted-sage); }
+        .background-bubbles li:nth-child(7) { left: 10%; width: 50px; height: 50px; animation-delay: 11s; background: var(--deep-olive); }
+        .background-bubbles li:nth-child(8) { left: 55%; width: 140px; height: 140px; animation-delay: 4s; animation-duration: 30s; background: var(--crisp-white); }
+        .background-bubbles li:nth-child(9) { left: 25%; width: 25px; height: 25px; animation-delay: 7s; background: var(--coral-pink); }
+        .background-bubbles li:nth-child(10) { left: 70%; width: 100px; height: 100px; animation-delay: 13s; background: var(--champagne-gold); }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 0.8; }
+            100% { transform: translateY(-1200px) scale(1.3); opacity: 0; }
+        }
+
+        .full-screen-glass {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            background-color: rgba(249, 246, 240, 0.4);
+        }
+
+        .full-screen-bg-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: url("https://raw.githubusercontent.com/kiranaananda/wedding/refs/heads/main/leaf_background.png") left bottom / contain no-repeat;
+            z-index: -1;
+        }
+
+        /* =========================================
+           3. TRADITIONAL RECTANGULAR ENVELOPE
+           ========================================= */
+        .cover-gate-section {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute; /* Changed to absolute to prevent document flow collapse on scroll hide */
+            top: 0;
+            left: 0;
+            z-index: 100;
+            transition: opacity 1s ease;
+        }
+
+        .envelope-wrapper {
+            position: absolute;
+            width: calc(100% - 20px);
+            height: 520px;
+            transition: transform 1.1s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.8s ease;
+            z-index: 10;
+        }
+
+        .envelope {
+            position: relative;
+            width: 100%; height: 100%;
+            background-color: #3D4A3E; 
+            border-radius: 6px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2), 
+                        0 10px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .envelope-flap::after {
+            content: "";
+            position: absolute;
+            top: 4px; left: 8px; right: 8px; height: 148px;
+            background-color: #8C9F8A; 
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            z-index: -1;
+        }
+
+        .envelope-flap {
+            position: absolute; top: 0; left: 0; width: 100%; height: 160px;
+            background-color: #354136; 
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            transform-origin: top center;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), z-index 0.6s;
+            z-index: 5;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+        }
+
+        .envelope-wrapper.open .envelope-flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+            filter: none;
+        }
+
+        .envelope-left-fold {
+            position: absolute; top: 0; left: 0; width: 60%; height: 100%;
+            background-color: #3A473B; 
+            clip-path: polygon(0 0, 0 100%, 100% 50%);
+            z-index: 3;
+        }
+        .envelope-right-fold {
+            position: absolute; top: 0; right: 0; width: 60%; height: 100%;
+            background-color: #384539; 
+            clip-path: polygon(100% 0, 100% 100%, 0 50%);
+            z-index: 3;
+        }
+
+        .envelope-bottom-fold {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 65%;
+            background-color: #3D4A3E;
+            clip-path: polygon(0 100%, 100% 100%, 50% 0);
+            z-index: 4;
+            filter: drop-shadow(0 -4px 8px rgba(0, 0, 0, 0.1));
+        }
+
+        .wax-seal {
+            position: absolute; bottom: 45%; left: calc(50% - 28px);
+            width: 56px; height: 56px;
+            background: radial-gradient(circle, #E1C185 0%, #C49A45 100%);
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2), 
+                        inset 0 1px 2px rgba(255,255,255,0.3);
+            cursor: pointer; z-index: 7;
+            display: flex; justify-content: center; align-items: center;
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .wax-seal:hover { transform: scale(1.08); }
+
+        .seal-inner {
+            font-family: 'Playfair Display', serif; font-weight: 600;
+            color: var(--sogan-brown); font-size: 0.85rem;
+            border: 1px dashed rgba(74, 46, 24, 0.3); border-radius: 50%; padding: 6px 4px;
+        }
+
+        .tap-hint {
+            position: absolute; bottom: 15%; width: 100%; text-align: center;
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px;
+            color: var(--coral-pink); animation: pulse 2s infinite; z-index: 6;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+        .envelope-wrapper.exit { transform: translateY(100vh); opacity: 0; pointer-events: none; }
+
+        /* =========================================
+           4. INVITATION CARD FLIP ARRANGEMENT
+           ========================================= */
+        .card-container { width: 100%; height: 100%; position: relative; transition: all 0.8s ease; z-index: 5; }
+        .card-container.id-hidden { transform: translateY(120px) scale(0.9); opacity: 0; pointer-events: none; }
+        .card-container.active { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
+
+        .card-inner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.7s cubic-bezier(0.1, 0.8, 0.3, 1); }
+        .card-inner.flipped { transform: rotateY(180deg); }
+
+        .card-front, .card-back {
+            position: absolute; width: 100%; height: 100%;
+            background-color: var(--crisp-white);
+            border: 1px solid rgba(214, 197, 160, 0.4); border-radius: 12px;
+            padding: 35px 24px; box-shadow: 0 12px 30px rgba(74, 88, 70, 0.08);
+            backface-visibility: hidden; -webkit-backface-visibility: hidden;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+        }
+
+        .couple-names { font-family: 'Playfair Display', serif; font-weight: 400; font-size: 1.2rem; color: var(--deep-olive); margin: 25px 0; line-height: 1.3; text-transform: uppercase; }
+        .ampersand { font-size: 1.4rem; color: var(--champagne-gold); font-style: italic; }
+        .theme-tag { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted-sage); font-weight: 500; }
+        .date-line { font-size: 0.85rem; letter-spacing: 1px; margin-bottom: 6px; font-weight: 400; }
+        .venue-line { font-size: 0.8rem; opacity: 0.8; margin-bottom: 35px; }
+
+        .action-btn, .submit-btn {
+            background-color: var(--deep-olive); color: var(--crisp-white);
+            border: none; padding: 12px 24px; font-family: inherit; font-size: 0.75rem;
+            text-transform: uppercase; letter-spacing: 2px; border-radius: 4px; cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .action-btn:hover, .submit-btn:hover { background-color: var(--champagne-gold); color: var(--sogan-brown); }
+
+        /* =========================================
+           5. CARD BACK: TABS AND ACCORDIONS
+           ========================================= */
+        .card-back { transform: rotateY(180deg); justify-content: flex-start; }
+
+        .back-to-cover {
+            background: none; border: none; color: var(--muted-sage);
+            font-family: inherit; font-size: 0.75rem; cursor: pointer;
+            align-self: flex-start; margin-bottom: 15px; display: flex; align-items: center; gap: 4px;
+        }
+        .back-to-cover:hover { color: var(--deep-olive); }
+
+        .tab-header {
+            display: flex; width: 100%; border-bottom: 1px solid rgba(214, 197, 160, 0.4); margin-bottom: 20px;
+        }
+        .tab-link {
+            flex: 1; background: none; border: none; padding: 10px;
+            font-family: inherit; font-size: 0.8rem; letter-spacing: 1px;
+            color: rgba(74, 88, 70, 0.5); cursor: pointer; transition: all 0.3s;
+        }
+        .tab-link.active {
+            color: var(--deep-olive); font-weight: 600;
+            border-bottom: 2px solid var(--deep-olive);
+        }
+
+        .tab-content-container { width: 100%; flex: 1; position: relative; overflow: hidden; }
+        .tab-panel { display: none; width: 100%; height: 100%; }
+        .tab-panel.active { display: block; }
+
+        .rsvp-form { display: flex; flex-direction: column; gap: 15px; margin-top: 5px; }
+        .input-group { display: flex; flex-direction: column; gap: 4px; text-align: left; }
+        
+        /* Fixed styling for non-accordion form labels */
+        .input-group label {
+            font-size: 0.75rem;
+            color: var(--deep-olive);
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+        
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%; padding: 11px; border: 1px solid rgba(74, 88, 70, 0.18);
+            border-radius: 4px; background: var(--soft-cream);
+            font-family: inherit; font-size: 0.85rem; color: var(--sogan-brown);
+        }
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus { outline: none; border-color: var(--deep-olive); }
+
+        .faq-scroller {
+            max-height: 290px; overflow-y: auto; padding-right: 4px; text-align: left;
+        }
+        .faq-scroller::-webkit-scrollbar { width: 3px; }
+        .faq-scroller::-webkit-scrollbar-thumb { background: var(--champagne-gold); border-radius: 2px; }
+
+        .faq-item {
+            border-bottom: 1px solid rgba(214, 197, 160, 0.3); padding: 12px 2px;
+        }
+        .faq-question {
+            font-size: 0.85rem; font-weight: 500; color: var(--deep-olive);
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+        }
+        .faq-answer {
+            font-size: 0.8rem; line-height: 1.5; opacity: 0; max-height: 0; overflow: hidden;
+            transition: all 0.35s ease; padding-top: 0;
+        }
+        .faq-item.open .faq-answer { opacity: 0.85; max-height: 80px; padding-top: 8px; }
+        .faq-item.open .faq-question span { transform: rotate(45deg); display: inline-block; }
+
+        .success-message {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--crisp-white); display: none;
+            flex-direction: column; justify-content: center; align-items: center; padding: 20px; z-index: 10;
+        }
+        .success-message h3 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--deep-olive); margin-bottom: 12px; }
+        .success-message p { font-size: 0.85rem; line-height: 1.6; opacity: 0.8; }
+
+        /* =========================================
+           6. SECTION 2: LUXURY WEDDING PORTAL MAIN
+           ========================================= */
+        .content-wrapper {
+            position: relative;
+            width: 100%;
+            margin-top: 100vh; /* Persistent spacer matching cover-gate height to keep document height constant */
+            background-color: var(--soft-cream);
+            z-index: 10;
+            opacity: 0;
+            transform: translateY(100px);
+            transition: opacity 1.2s ease, transform 1.2s ease;
+        }
+        
+        body.allow-scroll .content-wrapper {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .wave-transition {
+            width: 100%;
+            background-color: var(--soft-cream);
+            height: 110px;
+            margin-bottom: -2px;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+            will-change: clip-path;
+        }
+
+        .invitation-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 6rem 2rem;
+            text-align: center;
+            background-color: var(--soft-cream);
+        }
+        .honor-phrase { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.5rem; color: var(--deep-olive); }
+        .request-phrase { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 3px; color: var(--muted-sage); margin-top: 1rem; }
+
+        /* =========================================
+           7. PARALLAX ENGAGEMENT ENGINE STYLING
+           ========================================= */
+        .parallax-showcase {
+            position: relative;
+            width: 100%;
+            height: 65vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .parallax-image-layer {
+            position: absolute;
+            top: -22.5%; /* Centered vertically relative to the overflow boundary */
+            left: 0;
+            width: 100%;
+            height: 145%;
+            background-image: url("https://github.com/kiranaananda/wedding/blob/main/akka.jpeg?raw=true");
+            background-size: cover;
+            background-position: top;
+            will-change: transform;
+            transform: translateY(0%); /* Controlled via relative bounding percent instead of raw pixels to avoid clipping */
+        }
+
+        .parallax-dimmer-tint {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(249, 246, 240, 0.35), rgba(74, 88, 70, 0.55));
+            z-index: 2;
+        }
+
+        .parallax-quote-overlay {
+            position: relative;
+            z-index: 3;
+            color: var(--crisp-white);
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: clamp(1.3rem, 3.5vw, 2.2rem);
+            text-align: center;
+            padding: 0 30px;
+            text-shadow: 0 3px 15px rgba(74, 46, 24, 0.4);
+            max-width: 750px;
+        }
+
+        /* =========================================
+           8. POST-PARALLAX DETAILS EDITORIAL GRID
+           ========================================= */
+        .celebration-details-section {
+            background: url("https://github.com/kiranaananda/wedding/blob/main/flora.png?raw=true") right bottom/ contain no-repeat;
+            background-color: var(--soft-cream);
+            padding: 7rem 2rem;
+            width: 100%;
+        }
+
+        .section-subtitle {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--muted-sage);
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 4rem;
+        }
+
+        .editorial-details-grid {
+            max-width: 1050px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .details-editorial-card {
+            background-color: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(216, 205, 180, 0.35);
+            border-radius: 8px;
+            padding: 40px 30px;
+            box-shadow: 0 8px 24px rgba(74, 88, 70, 0.04);
+            transition: transform 0.3s;
+        }
+        .details-editorial-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .details-editorial-card h3 {
+            font-size: 1.3rem;
+            color: var(--deep-olive);
+            margin-bottom: 25px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(163, 177, 155, 0.3);
+            padding-bottom: 12px;
+        }
+
+        .details-editorial-card p {
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: var(--sogan-brown);
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .celebration-details-section { padding: 4rem 1.5rem; }
+            .invitation-container { padding: 4rem 1.5rem; }
+            .editorial-details-grid { gap: 25px; }
+        }
+    </style>
 </head>
 <body>
 
@@ -14,129 +479,324 @@
         <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
     </ul>
     <div class="full-screen-glass"></div>
-    
     <div class="full-screen-bg-image"></div>
-
-    <div class="scene-container">
-        
-        <!-- ENVELOPE: Restored Normal Rectangular Proportions -->
-        <div class="envelope-wrapper" id="envelopeWrapper">
-            <div class="envelope">
-                <div class="envelope-flap" id="envelopeFlap"></div>
-                <div class="envelope-left-fold"></div>
-                <div class="envelope-right-fold"></div>
-                <div class="envelope-bottom-fold"></div>
-                
-                <div class="wax-seal" id="waxSeal">
-                    <div class="seal-inner">K&A</div>
+    
+    <!-- ========================================================== -->
+    <!-- SECTION 1: COVER GATE SECTION (ENVELOPE REVEAL)            -->
+    <!-- ========================================================== -->
+    <div class="cover-gate-section" id="coverGate">
+        <div class="scene-container">
+            
+            <!-- ENVELOPE: Restored Normal Rectangular Proportions -->
+            <div class="envelope-wrapper" id="envelopeWrapper">
+                <div class="envelope">
+                    <div class="envelope-flap" id="envelopeFlap"></div>
+                    <div class="envelope-left-fold"></div>
+                    <div class="envelope-right-fold"></div>
+                    <div class="envelope-bottom-fold"></div>
+                    
+                    <div class="wax-seal" id="waxSeal">
+                        <div class="seal-inner">K&A</div>
+                    </div>
+                    <p class="tap-hint" id="tapHint">Tap Seal to Open</p>
                 </div>
-                <p class="tap-hint" id="tapHint">Tap Seal to Open</p>
             </div>
-        </div>
 
-        <!-- INVITATION CARD CONTAINER -->
-        <div class="card-container id-hidden" id="cardContainer">
-            <div class="card-inner" id="cardInner">
-                
-                <!-- CARD FRONT: The Invitation -->
-                <div class="card-front">
-                    <p class="theme-tag" id="guestLine" style="display: none;">Dear <span id="guest-name">Guest</span>,<br><br></p>
-                    <p class="theme-tag">Mr. Suwarno &<br> Mrs. Titik Suwarti<br><br>
-                    together with<br><br>
-                    Mr. Andrzej Zbigniew Krzyzak &<br> Mrs. Hanna Marzena Krzyzak<br><br>
-                    request the pleasure of your company at the wedding of their children</br></p>
-                    <h1 class="couple-names">Kirana Dwi Meilani Ananda <br><span class="ampersand">&</span><br> Andrzej Piotr Krzyzak</h1>
-                    <p class="date-line">Saturday, July 17, 2027</p>
-                    <p class="venue-line">The Grand Botanical Gardens</p>
-                    <button class="action-btn" id="goToRsvpBtn">Response & Info &rarr;</button>
-                </div>
-
-                <!-- CARD BACK: Dual Tabs (RSVP Form + FAQ) -->
-                <div class="card-back">
-                    <!-- Navigation back to invitation card cover -->
-                    <button class="back-to-cover" id="backToCoverBtn">&larr; Back to Invitation</button>
-
-                    <!-- Interactive Tab Selector Links -->
-                    <div class="tab-header">
-                        <button class="tab-link active" data-target="tab-rsvp">RSVP</button>
-                        <button class="tab-link" data-target="tab-faq">FAQ</button>
+            <!-- INVITATION CARD CONTAINER -->
+            <div class="card-container id-hidden" id="cardContainer">
+                <div class="card-inner" id="cardInner">
+                    
+                    <!-- CARD FRONT: The Invitation -->
+                    <div class="card-front">
+                        <p class="theme-tag" id="guestLine" style="display: none;">Dear <span id="guest-name">Guest</span>,<br><br></p>
+                        <p class="theme-tag">Mr. Suwarno &<br> Mrs. Titik Suwarti<br><br>
+                        together with<br><br>
+                        Mr. Andrzej Zbigniew Krzyzak &<br> Mrs. Hanna Marzena Krzyzak<br><br>
+                        request the pleasure of your company at the wedding of their children</p>
+                        <h1 class="couple-names">Kirana Dwi Meilani Ananda <br><span class="ampersand">&</span><br> Andrzej Piotr Krzyzak</h1>
+                        <p class="date-line">Saturday, July 17, 2027</p>
+                        <p class="venue-line">The Grand Botanical Gardens</p>
+                        <button class="action-btn" id="goToRsvpBtn">Response & Info &rarr;</button>
                     </div>
 
-                    <div class="tab-content-container">
-                        
-                        <!-- TAB A: RSVP Panel -->
-                        <div class="tab-panel active" id="tab-rsvp">
-                            <form action="https://api.web3forms.com/submit" method="POST" class="rsvp-form" id="weddingForm">
-                                <input type="hidden" name="access_key" value="69a7b2a1-1a22-4b7e-b717-097a70b63914">
-                                
-                    <div class="input-group">
-                        <label for="name" class="faq-question">Full name</label>
-                        <input type="text" id="name" name="name" required placeholder="Name(s) as they appear on your invitation">
-                    </div>
+                    <!-- CARD BACK: Dual Tabs (RSVP Form + FAQ) -->
+                    <div class="card-back">
+                        <button class="back-to-cover" id="backToCoverBtn">&larr; Back to Invitation</button>
 
-                    <div class="input-group">
-                        <label for="invitation-source" class="faq-question">Whose guest are you?</label>
-                        <select id="invitation-source" name="invitation_source" required>
-                        <option value="" disabled selected>Select an option</option>
-                        <option value="parents">Parents of the Bride/Groom</option>
-                        <option value="bridegroom">The Bride/Groom</option>
-                        </select>
-                    </div>
-        
-                <div class="input-group">
-                    <label for="attendance" class="faq-question">Will you be attending?</label>
-                    <select id="attendance" name="attendance" required>
-                    <option value="" disabled selected>Select an option</option>
-                    <option value="yes">Joyfully accept</option>
-                    <option value="no">Regretfully decline</option>
-                </select>
-                </div>
-
-                <div class="input-group">
-                    <label for="guests" class="faq-question">Number of guests (including yourself)</label>
-                    <select id="guests" name="total_guests">
-                        <option value="" disabled selected>Select an option</option>
-                        <option value="0">Not applicable</option>
-                        <option value="1">1 attendee</option>
-                        <option value="2">2 attendees</option>
-                    </select>
-                </div>
-
-                            <button type="submit" class="submit-btn">Send Response</button>
-                            </form>
+                        <!-- Interactive Tab Selector Links -->
+                        <div class="tab-header">
+                            <button class="tab-link active" data-target="tab-rsvp">RSVP</button>
+                            <button class="tab-link" data-target="tab-faq">FAQ</button>
                         </div>
 
-                        <!-- TAB B: FAQ Panel Accordions -->
-                        <div class="tab-panel" id="tab-faq">
-                            <div class="faq-scroller">
-                                <div class="faq-item">
-                                    <div class="faq-question">What is the dress code? <span>+</span></div>
-                                    <div class="faq-answer">We would love to see our guests in elegant traditional batik or formal attire matching our earth-tone theme.</div>
-                                </div>
-                                <div class="faq-item">
-                                    <div class="faq-question">Can I bring a plus one? <span>+</span></div>
-                                    <div class="faq-answer">Due to limited venue capacity, invitations are limited strictly to the number of attendees indicated in your RSVP dropdown.</div>
-                                </div>
-                                <div class="faq-item">
-                                    <div class="faq-question">Can I bring a gift? <span>+</span></div>
-                                    <div class="faq-answer">Your presence is present enough. If you'd like to contribute, we're saving for our first home and would be truly grateful for your support.</div>
+                        <div class="tab-content-container">
+                            
+                            <!-- TAB A: RSVP Panel (Classes correctly isolated without .faq-question conflict) -->
+                            <div class="tab-panel active" id="tab-rsvp">
+                                <form action="https://api.web3forms.com/submit" method="POST" class="rsvp-form" id="weddingForm">
+                                    <input type="hidden" name="access_key" value="69a7b2a1-1a22-4b7e-b717-097a70b63914">
+                                    
+                                    <div class="input-group">
+                                        <label for="name">Full name</label>
+                                        <input type="text" id="name" name="name" required placeholder="Name(s) as they appear on your invitation">
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label for="invitation-source">Whose guest are you?</label>
+                                        <select id="invitation-source" name="invitation_source" required>
+                                            <option value="" disabled selected>Select an option</option>
+                                            <option value="parents">Parents of the Bride/Groom</option>
+                                            <option value="bridegroom">The Bride/Groom</option>
+                                        </select>
+                                    </div>
+            
+                                    <div class="input-group">
+                                        <label for="attendance">Will you be attending?</label>
+                                        <select id="attendance" name="attendance" required>
+                                            <option value="" disabled selected>Select an option</option>
+                                            <option value="yes">Joyfully accept</option>
+                                            <option value="no">Regretfully decline</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label for="guests">Number of guests (including yourself)</label>
+                                        <select id="guests" name="total_guests">
+                                            <option value="" disabled selected>Select an option</option>
+                                            <option value="0">Not applicable</option>
+                                            <option value="1">1 attendee</option>
+                                            <option value="2">2 attendees</option>
+                                        </select>
+                                    </div>
+
+                                    <button type="submit" class="submit-btn">Send Response</button>
+                                </form>
+                            </div>
+
+                            <!-- TAB B: FAQ Panel Accordions -->
+                            <div class="tab-panel" id="tab-faq">
+                                <div class="faq-scroller">
+                                    <div class="faq-item">
+                                        <div class="faq-question">What is the dress code? <span>+</span></div>
+                                        <div class="faq-answer">We would love to see our guests in elegant traditional batik or formal attire matching our earth-tone theme.</div>
+                                    </div>
+                                    <div class="faq-item">
+                                        <div class="faq-question">Can I bring a plus one? <span>+</span></div>
+                                        <div class="faq-answer">Due to limited venue capacity, invitations are limited strictly to the number of attendees indicated in your RSVP dropdown.</div>
+                                    </div>
+                                    <div class="faq-item">
+                                        <div class="faq-question">Can I bring a gift? <span>+</span></div>
+                                        <div class="faq-answer">Your presence is present enough. If you'd like to contribute, we're saving for our first home and would be truly grateful for your support.</div>
+                                    </div>
                                 </div>
                             </div>
+
                         </div>
 
+                        <!-- Instant Success State Overlay -->
+                        <div class="success-message" id="successMessage">
+                            <h3>Thank You!</h3>
+                            <p>Your response has been beautifully received. We cannot wait to celebrate with you!</p>
+                        </div>
                     </div>
 
-                    <!-- Instant Success State Overlay -->
-                    <div class="success-message" id="successMessage">
-                        <h3>Thank You!</h3>
-                        <p>Your response has been beautifully received. We cannot wait to celebrate with you!</p>
-                    </div>
                 </div>
-
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- ========================================================== -->
+    <!-- SECTION 2: SCROLLABLE LUXURY WEDDING PORTAL CONTENT        -->
+    <!-- ========================================================== -->
+    <div class="content-wrapper" id="first-page">
+        
+        <!-- Scrolling Ribbon Wave -->
+        <div class="wave-transition" id="dew-overlay"></div>
+
+        <!-- PARALLAX IMAGE SECTION -->
+        <section class="parallax-showcase">
+            <div class="parallax-image-layer" id="parallaxBg"></div>
+            <div class="parallax-dimmer-tint"></div>
+            <p class="parallax-quote-overlay">
+                "And now these three remain: faith, hope and love. But the greatest of these is love."
+            </p>
+        </section>
+
+        <!-- ADDED EDITORIAL CONTENT SECTION BELOW PARALLAX -->
+        <section class="celebration-details-section">
+            <h2>The Celebration Continues</h2>
+            <p class="section-subtitle">Details for our cherished guests</p>
+            
+            <div class="editorial-details-grid">
+                <div class="details-editorial-card">
+                    <h3>The Wedding Timeline</h3>
+                    <p><strong>4:30 PM</strong> – Garden Welcome Guest Assembly</p>
+                    <p><strong>5:00 PM</strong> – Holy Matrimony Ceremony</p>
+                    <p><strong>6:00 PM</strong> – Sunset Cocktails & Refreshments</p>
+                    <p><strong>7:00 PM</strong> – Wedding Toast Banquet & Dancing Dinner</p>
+                </div>
+                
+                <div class="details-editorial-card">
+                    <h3>Accommodations</h3>
+                    <p>A collection of premium guest suites has been reserved at the botanical estate pavilion lodge. Kindly mention the names of Kirana & Andrzej when coordinating your reservation entries directly with reception before August 1st.</p>
+                </div>
+
+                <div class="details-editorial-card">
+                    <h3>The Venue</h3>
+                    <p><strong>The Grand Botanical Orchid Greenhouse Gardens</strong><br>Gate Access 4B, Conservatory Boulevard West Road.</p>
+                    <p>Complimentary valet amenities will be active directly at the grand pavilion driveway entry points for all invitees.</p>
+                </div>
+            </div>
+        </section>
+        
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const waxSeal = document.getElementById("waxSeal");
+            const tapHint = document.getElementById("tapHint");
+            const envelopeWrapper = document.getElementById("envelopeWrapper");
+            const cardContainer = document.getElementById("cardContainer");
+            const goToRsvpBtn = document.getElementById("goToRsvpBtn");
+            const backToCoverBtn = document.getElementById("backToCoverBtn");
+            const cardInner = document.getElementById("cardInner");
+            const weddingForm = document.getElementById("weddingForm");
+            const successMessage = document.getElementById("successMessage");
+
+            // URL QUERY GUEST DETECTOR PARAMETERS
+            let name = null;
+            const queryParams = new URLSearchParams(window.location.search);
+            if (queryParams.has("n")) name = queryParams.get("n");
+            
+            if (!name && window.location.hash) {
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                if (hashParams.has("n")) name = hashParams.get("n");
+            }
+
+            const guestLine = document.getElementById("guestLine");
+            const guestNameEl = document.getElementById("guest-name");
+
+            if (name) {
+                if (guestNameEl) guestNameEl.textContent = name.replace(/[_-]/g, " ");
+                if (guestLine) guestLine.style.display = "block";
+            }
+
+            // UNSEAL & OPEN WRAPPERS
+            waxSeal.addEventListener("click", () => {
+                waxSeal.style.opacity = "0";
+                waxSeal.style.pointerEvents = "none";
+                tapHint.style.opacity = "0";
+                envelopeWrapper.classList.add("open");
+
+                setTimeout(() => {
+                    cardContainer.classList.remove("id-hidden");
+                    cardContainer.classList.add("active");
+                    
+                    setTimeout(() => {
+                        envelopeWrapper.classList.add("exit");
+                        document.body.classList.add("allow-scroll"); // Unlock deep scroll transitions safely
+                    }, 500);
+                }, 500);
+            });
+
+            // FLIP ROTATION ENGINE
+            goToRsvpBtn.addEventListener("click", () => cardInner.classList.add("flipped"));
+            backToCoverBtn.addEventListener("click", () => cardInner.classList.remove("flipped"));
+
+            // RSVP / FAQ COMPONENT TABS
+            const tabLinks = document.querySelectorAll(".tab-link");
+            const tabPanels = document.querySelectorAll(".tab-panel");
+
+            tabLinks.forEach(link => {
+                link.addEventListener("click", () => {
+                    const targetId = link.getAttribute("data-target");
+                    tabLinks.forEach(btn => btn.classList.remove("active"));
+                    tabPanels.forEach(panel => panel.classList.remove("active"));
+                    link.classList.add("active");
+                    document.getElementById(targetId).classList.add("active");
+                });
+            });
+
+            // FAQ ACCORDIONS MODULE (Now safely targets only .faq-item .faq-question)
+            const faqQuestions = document.querySelectorAll(".faq-item .faq-question");
+            faqQuestions.forEach(question => {
+                question.addEventListener("click", () => {
+                    const currentItem = question.parentElement;
+                    const isOpen = currentItem.classList.contains("open");
+                    document.querySelectorAll(".faq-item").forEach(item => item.classList.remove("open"));
+                    if (!isOpen) currentItem.classList.add("open");
+                });
+            });
+
+            // RSVP DISPATCH LOGIC
+            weddingForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                successMessage.style.display = "flex";
+                try {
+                    await fetch(weddingForm.action, {
+                        method: "POST",
+                        body: new FormData(weddingForm),
+                        headers: { 'Accept': 'application/json' }
+                    });
+                } catch (error) {
+                    console.error("Submission error", error);
+                }
+            });
+        });
+
+        // ==========================================================
+        // DUAL SCROLL TIMELINE ANIMATION: WAVE TRANSITION & PARALLAX
+        // ==========================================================
+        window.addEventListener('scroll', () => {
+            if (!document.body.classList.contains("allow-scroll")) return;
+
+            let scrollPos = window.scrollY;
+            let windowHeight = window.innerHeight;
+            let progress = Math.min(scrollPos / windowHeight, 1);
+
+            // 1. PAPER DECKLE WAVE ANIMATION CONTROLLER (Fixed script cutting off here)
+            const dewOverlay = document.getElementById('dew-overlay');
+            if (dewOverlay) {
+                let y = (1 - progress) * 100;
+                let wavePoints = [];
+                const steps = 15;
+                for (let i = 0; i <= steps; i++) {
+                    let pctX = (i / steps) * 100;
+                    let angle = (i / steps) * Math.PI * 3.5 + (progress * Math.PI * 1.8);
+                    let waveOffset = Math.sin(angle) * 3.5;
+                    wavePoints.push(`${pctX}% ${y + waveOffset}%`);
+                }
+                let dewPath = `polygon(0% 0%, 100% 0%, 100% 100%, ${[...wavePoints].reverse().join(', ')}, 0% 100%)`;
+                dewOverlay.style.clipPath = dewPath;
+                dewOverlay.style.webkitClipPath = dewPath;
+            }
+
+            // 2. PARALLAX EFFECT FOR SHOWCASE BACKGROUND (Viewport-bounded relative scroll translation)
+            const parallaxBg = document.getElementById('parallaxBg');
+            const showcase = document.querySelector('.parallax-showcase');
+            if (parallaxBg && showcase) {
+                const rect = showcase.getBoundingClientRect();
+                const viewHeight = window.innerHeight;
+                // Only compute transformation when the showcase section is visible
+                if (rect.top < viewHeight && rect.bottom > 0) {
+                    const scrolledPercentage = (viewHeight - rect.top) / (viewHeight + rect.height);
+                    // Dynamically translate vertically strictly between -15% and +15% to avoid ever clipping
+                    const translation = (scrolledPercentage - 0.5) * 30;
+                    parallaxBg.style.transform = `translateY(${translation}%)`;
+                }
+            }
+
+            // Slowly fade the opening Cover Gate out of view during scrolling
+            const coverGate = document.getElementById('coverGate');
+            if (coverGate) {
+                coverGate.style.opacity = 1 - (progress * 1.5);
+                if (progress >= 0.8) {
+                    coverGate.style.display = 'none';
+                } else {
+                    coverGate.style.display = 'flex';
+                }
+            }
+        });
+    </script>
 </body>
 </html>
